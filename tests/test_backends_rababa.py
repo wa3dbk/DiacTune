@@ -12,12 +12,8 @@ def _check_rababa_env():
         from rababa.models.modern import build_modern_student  # noqa: F401
     except Exception as exc:
         return f"rababa model not importable: {exc}"
-    try:
-        # Verify swiglu module is present — it's lazily imported during
-        # forward pass and may be missing from incomplete installations.
-        from rababa.models import swiglu as _swiglu  # noqa: F401
-    except Exception as exc:
-        return f"rababa.models.swiglu not available: {exc}"
+    # Note: rababa.models.swiglu is now injected synthetically by RababaBackend,
+    # so we do NOT check for it here — it will always be available after import.
     try:
         from diac.backends.rababa import RababaBackend  # noqa: F401
     except Exception as exc:

@@ -7,12 +7,41 @@ rababa.models.multi_head — a module that does not exist in this installation.
 
 from __future__ import annotations
 
+import sys
 import tempfile
+import types
 from pathlib import Path
 
 import torch
+import torch.nn.functional as F
 
 from diac.backends.base import DiacritizationBackend
+
+
+def _inject_swiglu_if_missing() -> None:
+    """Inject a synthetic rababa.models.swiglu module if it is not present.
+
+    The file codes/rababa/src/rababa/models/swiglu.py is excluded by the
+    upstream .gitignore (pattern: models/), so a clean checkout of diac-ft
+    will not have it. Injecting a synthetic module here makes the backend
+    self-sufficient without touching codes/rababa/.
+    """
+    if "rababa.models.swiglu" in sys.modules:
+        return
+    mod = types.ModuleType("rababa.models.swiglu")
+
+    def swiglu(
+        gate: torch.Tensor,
+        up: torch.Tensor,
+        clamp_max: float | None = None,
+    ) -> torch.Tensor:
+        if clamp_max is not None:
+            gate = gate.clamp(-clamp_max, clamp_max)
+            up = up.clamp(-clamp_max, clamp_max)
+        return F.silu(gate) * up
+
+    mod.swiglu = swiglu  # type: ignore[attr-defined]
+    sys.modules["rababa.models.swiglu"] = mod
 from rababa.config import load_task_config, to_dict
 from rababa.constants import INPUT_VOCAB, TARGET_VOCAB
 from rababa.encoder import ArabicEncoder
@@ -30,6 +59,7 @@ class RababaBackend(DiacritizationBackend):
     """
 
     def __init__(self, task: str = _TASK, checkpoint: str | None = None) -> None:
+        _inject_swiglu_if_missing()
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         cfg = load_task_config(task)
         self._cfg = cfg
