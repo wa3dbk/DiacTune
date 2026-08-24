@@ -149,7 +149,7 @@ class CATTBackend(DiacritizationBackend):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _build_model(self) -> "pl.LightningModule":  # type: ignore[name-defined]
+    def _build_model(self) -> "torch.nn.Module":
         if self._model_type == "eo":
             from eo_pl import TashkeelModel
         else:

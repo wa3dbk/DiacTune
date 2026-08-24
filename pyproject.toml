@@ -21,7 +21,8 @@ dependencies = [
 diac = "diac.cli:app"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov"]
+catt = ["pytorch_lightning>=2.0", "kaldialign"]
+dev  = ["pytest>=8", "pytest-cov"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["diac"]
