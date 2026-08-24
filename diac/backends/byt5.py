@@ -93,6 +93,7 @@ class ByT5Backend(DiacritizationBackend):
         import torch
         from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
         self._tokenizer = AutoTokenizer.from_pretrained(path)
         self._model = AutoModelForSeq2SeqLM.from_pretrained(path).to(self._device)
         self._model.eval()
