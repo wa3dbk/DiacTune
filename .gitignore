@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+.env
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Checkpoints and model weights
+checkpoints/
+*.pt
+*.onnx
+*.bin
+*.safetensors
+
+# HuggingFace cache
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# SDD workspace (build artifacts, not source)
+.superpowers/
+
+# camel_data downloaded datasets
+~/.camel_tools/
