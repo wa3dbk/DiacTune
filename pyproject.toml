@@ -22,3 +22,6 @@ diac = "diac.cli:app"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-cov"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["diac"]
