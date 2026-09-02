@@ -64,6 +64,13 @@ def evaluate(
     sentences = load_sentences(input)
     hyp = backend.infer(sentences)
     ref_lines = load_sentences(ref)
+    if len(hyp) != len(ref_lines):
+        typer.echo(
+            f"Error: hyp and ref must have the same number of lines: "
+            f"got {len(hyp)} vs {len(ref_lines)}. Check for blank lines in your files.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
     scores = compute_der(hyp, ref_lines)
     for k, v in scores.items():
         typer.echo(f"{k}: {v:.4f}")

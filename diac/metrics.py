@@ -9,6 +9,11 @@ def compute_der(hyp: list[str], ref: list[str]) -> dict[str, float]:
 
     Writes temporary files because diacritization_evaluation operates on paths.
     """
+    if len(hyp) != len(ref):
+        raise ValueError(
+            f"hyp and ref must have the same number of lines, "
+            f"got {len(hyp)} vs {len(ref)}"
+        )
     with tempfile.TemporaryDirectory() as tmp:
         orig_path = str(Path(tmp) / "ref.txt")
         pred_path = str(Path(tmp) / "hyp.txt")

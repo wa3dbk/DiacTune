@@ -25,7 +25,19 @@ def test_evaluate_camel(tmp_path):
     result = runner.invoke(app, ["evaluate", "--model", "camel",
                                   "--input", str(inp), "--ref", str(ref)])
     assert result.exit_code == 0
-    assert "DER" in result.output
+    for key in ("DER", "DER*", "WER", "WER*"):
+        assert key in result.output, f"Expected '{key}' in evaluate output"
+
+def test_evaluate_mismatched_line_counts_exits_nonzero(tmp_path):
+    inp = tmp_path / "in.txt"
+    ref = tmp_path / "ref.txt"
+    # 1 undiacritized line → 1 hypothesis line; 2 reference lines → mismatch
+    inp.write_text("فإن لم يكونا\n", encoding="utf-8")
+    ref.write_text("فَإِنْ لَمْ يَكُونَا\nقَالَ\n", encoding="utf-8")
+    result = runner.invoke(app, ["evaluate", "--model", "camel",
+                                  "--input", str(inp), "--ref", str(ref)])
+    assert result.exit_code != 0
+    assert "same number" in result.output.lower() or "same number" in str(result.exception).lower()
 
 def test_finetune_camel_raises_gracefully(tmp_path):
     tr = tmp_path / "train.txt"
