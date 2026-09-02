@@ -22,7 +22,7 @@ def _inject_swiglu_if_missing() -> None:
     """Inject a synthetic rababa.models.swiglu module if it is not present.
 
     The file codes/rababa/src/rababa/models/swiglu.py is excluded by the
-    upstream .gitignore (pattern: models/), so a clean checkout of diac-ft
+    upstream .gitignore (pattern: models/), so a clean checkout of DiacTune
     will not have it. Injecting a synthetic module here makes the backend
     self-sufficient without touching codes/rababa/.
     """
