@@ -5,7 +5,8 @@ from camel_tools.morphology.database import MorphologyDB
 from camel_tools.disambig.mle import MLEDisambiguator
 from camel_tools.tokenizers.word import simple_word_tokenize
 
-_WHITESPACE_RE = re.compile(r'\s+|\S+')
+# Matches whitespace runs and non-whitespace tokens alternately, preserving spacing.
+_TOKEN_RE = re.compile(r'\s+|\S+')
 
 
 class CAMeLBackend(DiacritizationBackend):
@@ -15,7 +16,7 @@ class CAMeLBackend(DiacritizationBackend):
     def infer(self, sentences: list[str]) -> list[str]:
         results = []
         for sentence in sentences:
-            tokens = _WHITESPACE_RE.findall(sentence)
+            tokens = _TOKEN_RE.findall(sentence)
             out_tokens = []
             for tok in tokens:
                 if not tok.strip():

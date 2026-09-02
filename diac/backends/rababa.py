@@ -42,6 +42,12 @@ def _inject_swiglu_if_missing() -> None:
 
     mod.swiglu = swiglu  # type: ignore[attr-defined]
     sys.modules["rababa.models.swiglu"] = mod
+
+# These imports must appear AFTER _inject_swiglu_if_missing is defined above.
+# The function is called in __init__ before any rababa submodule is imported,
+# but Python resolves module-level imports at load time — so swiglu injection
+# must already be in sys.modules before `from rababa.models.modern import ...`
+# triggers the chain of rababa imports.
 from rababa.config import load_task_config, to_dict
 from rababa.constants import INPUT_VOCAB, TARGET_VOCAB
 from rababa.encoder import ArabicEncoder

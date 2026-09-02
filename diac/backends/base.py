@@ -32,7 +32,7 @@ _REGISTRY: dict[str, str] = {
 
 def get_backend(name: str) -> DiacritizationBackend:
     if name not in _REGISTRY:
-        raise ValueError(f"Unknown backend '{name}'. Choose from: {list(_REGISTRY)}")
+        raise ValueError(f"Unknown backend '{name}'. Choose from: {sorted(_REGISTRY)}")
     module_path, class_name = _REGISTRY[name].rsplit(".", 1)
     import importlib
     module = importlib.import_module(module_path)

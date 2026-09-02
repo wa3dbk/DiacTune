@@ -5,7 +5,7 @@ from camel_tools.utils.dediac import dediac_ar
 
 def load_sentences(path: str | Path) -> list[str]:
     lines = Path(path).read_text(encoding="utf-8").splitlines()
-    return [l.strip() for l in lines if l.strip()]
+    return [line.strip() for line in lines if line.strip()]
 
 
 def make_pairs(sentences: list[str]) -> list[tuple[str, str]]:
