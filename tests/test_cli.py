@@ -38,6 +38,7 @@ def test_evaluate_mismatched_line_counts_exits_nonzero(tmp_path):
     result = runner.invoke(app, ["evaluate", "--model", "camel",
                                   "--input", str(inp), "--ref", str(ref)])
     assert result.exit_code != 0
+    assert "hypothesis lines" in result.output
 
 def test_finetune_camel_raises_gracefully(tmp_path):
     tr = tmp_path / "train.txt"
