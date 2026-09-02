@@ -166,7 +166,7 @@ class CATTBackend(DiacritizationBackend):
     # DiacritizationBackend interface
     # ------------------------------------------------------------------
 
-    def infer(self, sentences: list[str]) -> list[str]:
+    def infer(self, sentences: list[str], **kwargs) -> list[str]:
         """Diacritize a batch of Arabic sentences.
 
         Empty or non-Arabic strings are returned as-is after stripping

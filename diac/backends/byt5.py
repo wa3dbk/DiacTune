@@ -16,7 +16,7 @@ class ByT5Backend(DiacritizationBackend):
         self._model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint).to(self._device)
         self._model.eval()
 
-    def infer(self, sentences: list[str]) -> list[str]:
+    def infer(self, sentences: list[str], **kwargs) -> list[str]:
         import torch
 
         results = []
@@ -34,7 +34,9 @@ class ByT5Backend(DiacritizationBackend):
         output_dir: str = "checkpoints/byt5",
         epochs: int = 3,
         batch_size: int = 8,
-        **kwargs,
+        learning_rate: float = 5e-5,
+        warmup_steps: int = 0,
+        **kwargs,  # remaining kwargs intentionally ignored
     ) -> None:
         from transformers import (
             Seq2SeqTrainer,
@@ -73,6 +75,8 @@ class ByT5Backend(DiacritizationBackend):
             fp16=False,
             logging_steps=50,
             load_best_model_at_end=True,
+            learning_rate=learning_rate,
+            warmup_steps=warmup_steps,
         )
         trainer = Seq2SeqTrainer(
             model=self._model,

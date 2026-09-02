@@ -27,10 +27,13 @@ from diac.backends.catt import CATT_UNAVAILABLE
 # Module-level skip guard
 # ---------------------------------------------------------------------------
 
-pytestmark = pytest.mark.skipif(
-    CATT_UNAVAILABLE is not None,
-    reason=f"CATT environment not available: {CATT_UNAVAILABLE}",
-)
+pytestmark = [
+    pytest.mark.skipif(
+        CATT_UNAVAILABLE is not None,
+        reason=f"CATT environment not available: {CATT_UNAVAILABLE}",
+    ),
+    pytest.mark.slow,
+]
 
 # Optional checkpoint path
 CKPT = os.environ.get("CATT_CHECKPOINT", None)

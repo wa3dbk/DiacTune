@@ -21,8 +21,14 @@ dependencies = [
 diac = "diac.cli:app"
 
 [project.optional-dependencies]
-catt = ["pytorch_lightning>=2.0", "kaldialign"]
-dev  = ["pytest>=8", "pytest-cov"]
+rababa = []
+catt   = ["pytorch_lightning>=2.0", "kaldialign"]
+dev    = ["pytest>=8", "pytest-cov"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests that hit the network or load large models (deselect with '-m not slow')",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["diac"]

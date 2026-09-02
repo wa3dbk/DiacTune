@@ -20,10 +20,13 @@ def _check_env():
 
 _ENV_SKIP = _check_env()
 
-pytestmark = pytest.mark.skipif(
-    _ENV_SKIP is not None,
-    reason=f"torch/transformers environment not compatible: {_ENV_SKIP}",
-)
+pytestmark = [
+    pytest.mark.skipif(
+        _ENV_SKIP is not None,
+        reason=f"torch/transformers environment not compatible: {_ENV_SKIP}",
+    ),
+    pytest.mark.slow,
+]
 
 
 @pytest.fixture(scope="module")

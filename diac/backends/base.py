@@ -1,11 +1,22 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class DiacritizationProtocol(Protocol):
+    """Structural protocol for duck-typed backends (no inheritance required)."""
+
+    def infer(self, sentences: list[str], **kwargs) -> list[str]: ...
+    def finetune(self, train: list[tuple[str, str]], dev: list[tuple[str, str]], **kwargs) -> None: ...
+    def save(self, path: str) -> None: ...
+    def load(self, path: str) -> None: ...
 
 
 class DiacritizationBackend(ABC):
     @abstractmethod
-    def infer(self, sentences: list[str]) -> list[str]: ...
+    def infer(self, sentences: list[str], **kwargs) -> list[str]: ...
 
     def finetune(
         self,
@@ -30,9 +41,9 @@ _REGISTRY: dict[str, str] = {
 }
 
 
-def get_backend(name: str) -> DiacritizationBackend:
+def get_backend(name: str) -> DiacritizationProtocol:
     if name not in _REGISTRY:
-        raise ValueError(f"Unknown backend '{name}'. Choose from: {list(_REGISTRY)}")
+        raise ValueError(f"Unknown backend '{name}'. Choose from: {sorted(_REGISTRY)}")
     module_path, class_name = _REGISTRY[name].rsplit(".", 1)
     import importlib
     module = importlib.import_module(module_path)
