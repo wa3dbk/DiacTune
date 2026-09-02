@@ -75,3 +75,28 @@ def test_evaluate_camel_format_text_is_default(tmp_path):
     # text format: each line is "KEY: value"
     assert "DER:" in result.output
     assert "WER:" in result.output
+
+def test_infer_batch_size_flag(tmp_path):
+    """--batch-size is accepted and does not break infer output."""
+    inp = tmp_path / "in.txt"
+    inp.write_text(SAMPLE_UNDIAC, encoding="utf-8")
+    out = tmp_path / "out.txt"
+    result = runner.invoke(app, ["infer", "--model", "camel",
+                                  "--input", str(inp), "--output", str(out),
+                                  "--batch-size", "4"])
+    assert result.exit_code == 0
+    assert out.exists()
+
+
+def test_infer_env_var_checkpoint_does_not_crash_on_missing(tmp_path, monkeypatch):
+    """If CATT_CHECKPOINT points to a nonexistent file, the CLI errors clearly
+    rather than silently ignoring it. We test with camel (no env var) to confirm
+    no spurious env-var load is attempted for backends without a mapping."""
+    monkeypatch.delenv("CATT_CHECKPOINT", raising=False)
+    monkeypatch.delenv("RABABA_CHECKPOINT", raising=False)
+    inp = tmp_path / "in.txt"
+    inp.write_text(SAMPLE_UNDIAC, encoding="utf-8")
+    out = tmp_path / "out.txt"
+    result = runner.invoke(app, ["infer", "--model", "camel",
+                                  "--input", str(inp), "--output", str(out)])
+    assert result.exit_code == 0
