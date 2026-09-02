@@ -1,7 +1,13 @@
 from __future__ import annotations
+import json
+import os
 from pathlib import Path
 from typing import Optional
+
 import typer
+
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
 from diac.backends.base import get_backend
 from diac.data import load_sentences, make_pairs
 from diac.metrics import compute_der
@@ -15,12 +21,12 @@ def infer(
     input: Path = typer.Option(..., help="Input .txt (one sentence per line, undiacritized)"),
     output: Optional[Path] = typer.Option(None, help="Output file (default: stdout)"),
     checkpoint: Optional[Path] = typer.Option(None, help="Path to model checkpoint"),
+    batch_size: int = typer.Option(1, help="Batch size passed to backend.infer (backends that don't support it ignore it)"),
 ):
     backend = get_backend(model)
-    if checkpoint:
-        backend.load(str(checkpoint))
+    _load_checkpoint(backend, model, checkpoint)
     sentences = load_sentences(input)
-    results = backend.infer(sentences)
+    results = backend.infer(sentences, batch_size=batch_size)
     text = "\n".join(results)
     if output:
         output.write_text(text + "\n", encoding="utf-8")
@@ -57,20 +63,36 @@ def evaluate(
     input: Path = typer.Option(..., help="Input .txt (undiacritized)"),
     ref: Path = typer.Option(..., help="Reference .txt (diacritized gold)"),
     checkpoint: Optional[Path] = typer.Option(None, help="Path to model checkpoint"),
+    format: str = typer.Option("text", help="Output format: text or json"),
 ):
+    if format not in ("text", "json"):
+        typer.echo(f"Error: --format must be 'text' or 'json', got '{format}'", err=True)
+        raise typer.Exit(code=1)
     backend = get_backend(model)
-    if checkpoint:
-        backend.load(str(checkpoint))
+    _load_checkpoint(backend, model, checkpoint)
     sentences = load_sentences(input)
     hyp = backend.infer(sentences)
     ref_lines = load_sentences(ref)
     if len(hyp) != len(ref_lines):
         typer.echo(
-            f"Error: hyp and ref must have the same number of lines: "
-            f"got {len(hyp)} vs {len(ref_lines)}. Check for blank lines in your files.",
+            f"Error: input produced {len(hyp)} hypothesis lines but ref has "
+            f"{len(ref_lines)} lines. Check for blank lines in your files.",
             err=True,
         )
         raise typer.Exit(code=1)
     scores = compute_der(hyp, ref_lines)
-    for k, v in scores.items():
-        typer.echo(f"{k}: {v:.4f}")
+    if format == "json":
+        typer.echo(json.dumps(scores))
+    else:
+        for k, v in scores.items():
+            typer.echo(f"{k}: {v:.4f}")
+
+
+def _load_checkpoint(backend, model: str, checkpoint: Optional[Path]) -> None:
+    """Load checkpoint from --checkpoint flag or env var fallback."""
+    _ENV_VARS = {"catt": "CATT_CHECKPOINT", "rababa": "RABABA_CHECKPOINT"}
+    path = checkpoint or (
+        Path(env_val) if (env_val := os.environ.get(_ENV_VARS.get(model, ""))) else None
+    )
+    if path:
+        backend.load(str(path))

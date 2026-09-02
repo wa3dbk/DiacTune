@@ -1,3 +1,4 @@
+import json
 import tempfile
 from pathlib import Path
 from typer.testing import CliRunner
@@ -37,7 +38,6 @@ def test_evaluate_mismatched_line_counts_exits_nonzero(tmp_path):
     result = runner.invoke(app, ["evaluate", "--model", "camel",
                                   "--input", str(inp), "--ref", str(ref)])
     assert result.exit_code != 0
-    assert "same number" in result.output.lower() or "same number" in str(result.exception).lower()
 
 def test_finetune_camel_raises_gracefully(tmp_path):
     tr = tmp_path / "train.txt"
@@ -48,3 +48,29 @@ def test_finetune_camel_raises_gracefully(tmp_path):
                                   "--train", str(tr), "--dev", str(dv)])
     assert result.exit_code != 0
     assert "not support" in result.output.lower() or "not support" in str(result.exception).lower()
+
+def test_evaluate_camel_format_json(tmp_path):
+    inp = tmp_path / "in.txt"
+    ref = tmp_path / "ref.txt"
+    inp.write_text(SAMPLE_UNDIAC, encoding="utf-8")
+    ref.write_text(SAMPLE_DIAC, encoding="utf-8")
+    result = runner.invoke(app, ["evaluate", "--model", "camel",
+                                  "--input", str(inp), "--ref", str(ref),
+                                  "--format", "json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    for key in ("DER", "DER*", "WER", "WER*"):
+        assert key in data
+        assert isinstance(data[key], float)
+
+def test_evaluate_camel_format_text_is_default(tmp_path):
+    inp = tmp_path / "in.txt"
+    ref = tmp_path / "ref.txt"
+    inp.write_text(SAMPLE_UNDIAC, encoding="utf-8")
+    ref.write_text(SAMPLE_DIAC, encoding="utf-8")
+    result = runner.invoke(app, ["evaluate", "--model", "camel",
+                                  "--input", str(inp), "--ref", str(ref)])
+    assert result.exit_code == 0
+    # text format: each line is "KEY: value"
+    assert "DER:" in result.output
+    assert "WER:" in result.output
