@@ -23,3 +23,10 @@ def test_infer_adds_diacritics(backend):
 def test_finetune_raises(backend):
     with pytest.raises(NotImplementedError):
         backend.finetune([], [])
+
+
+def test_camel_backend_satisfies_protocol():
+    from diac.backends.base import DiacritizationProtocol
+    from diac.backends.camel import CAMeLBackend
+    b = CAMeLBackend()
+    assert isinstance(b, DiacritizationProtocol)

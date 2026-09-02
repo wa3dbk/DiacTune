@@ -80,7 +80,7 @@ class RababaBackend(DiacritizationBackend):
         if checkpoint is not None:
             self.load(checkpoint)
 
-    def infer(self, sentences: list[str]) -> list[str]:
+    def infer(self, sentences: list[str], **kwargs) -> list[str]:
         results = []
         for sent in sentences:
             clean = self._encoder.clean(sent)

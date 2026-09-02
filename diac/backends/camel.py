@@ -13,7 +13,7 @@ class CAMeLBackend(DiacritizationBackend):
     def __init__(self, db_name: str = "calima-msa-r13"):
         self._disambig = MLEDisambiguator.pretrained(db_name)
 
-    def infer(self, sentences: list[str]) -> list[str]:
+    def infer(self, sentences: list[str], **kwargs) -> list[str]:
         results = []
         for sentence in sentences:
             tokens = _TOKEN_RE.findall(sentence)

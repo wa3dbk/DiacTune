@@ -16,7 +16,7 @@ class ByT5Backend(DiacritizationBackend):
         self._model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint).to(self._device)
         self._model.eval()
 
-    def infer(self, sentences: list[str]) -> list[str]:
+    def infer(self, sentences: list[str], **kwargs) -> list[str]:
         import torch
 
         results = []
